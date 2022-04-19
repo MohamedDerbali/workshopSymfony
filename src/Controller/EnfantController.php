@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 /**
  * @Route("/")
  */
@@ -18,23 +18,27 @@ class EnfantController extends AbstractController
     /**
      * @Route("/", name="app_enfant_index", methods={"GET"})
      */
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(EntityManagerInterface $entityManager, NormalizerInterface $normalizer): Response
     {
         $enfants = $entityManager
             ->getRepository(Enfant::class)
             ->findAll();
-
+            
+    $jsonContent = $normalizer->normalize($enfants, 'json'/*, ['groups' =>'post:read']*/);
+        return new Response(json_encode($jsonContent));
+            /*
         return $this->render('enfant/index.html.twig', [
             'enfants' => $enfants,
-        ]);
+        ]);*/
     }
 
     /**
      * @Route("/new", name="app_enfant_new", methods={"GET", "POST"})
      */
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, NormalizerInterface $normalizer): Response
     {
         $enfant = new Enfant();
+
         $form = $this->createForm(EnfantType::class, $enfant);
         $form->handleRequest($request);
 
@@ -44,23 +48,33 @@ class EnfantController extends AbstractController
 
             return $this->redirectToRoute('app_enfant_index', [], Response::HTTP_SEE_OTHER);
         }
-
+        
+    $jsonContent = $normalizer->normalize($enfant,'json');
+    return new Response(json_encode($jsonContent));
+        /*
         return $this->render('enfant/new.html.twig', [
             'enfant' => $enfant,
             'form' => $form->createView(),
-        ]);
+        ]);*/
     }
 
     /**
      * @Route("/{idEnfant}", name="app_enfant_show", methods={"GET"})
      */
-    public function show(Enfant $enfant): Response
+    public function show(Enfant $enfant,  NormalizerInterface $normalizer): Response
     {
-        return $this->render('enfant/show.html.twig', [
-            'enfant' => $enfant,
-        ]);
+            $jsonContent = $normalizer->normalize($enfant, 'json', ['groups' =>'post:read']);
+        return new Response(json_encode($jsonContent));
+    
     }
-
+    /**
+     * @Route("/{idEnfant}", name="app_enfant_show", methods={"GET"})
+     */
+    public function showJson(Enfant $enfant,  NormalizerInterface $normalizer): Response
+    {
+        $jsonContent = $normalizer->normalize($enfant, 'json', ['groups' =>'post:read']);
+        return new Response(json_encode($jsonContent));
+    }
     /**
      * @Route("/{idEnfant}/edit", name="app_enfant_edit", methods={"GET", "POST"})
      */
@@ -74,7 +88,10 @@ class EnfantController extends AbstractController
 
             return $this->redirectToRoute('app_enfant_index', [], Response::HTTP_SEE_OTHER);
         }
-
+/*
+        $jsonContent = $normalizer->normalize($enfant, 'json', ['groups' =>'post:read']);
+        return new Response(json_encode($jsonContent));*/
+        
         return $this->render('enfant/edit.html.twig', [
             'enfant' => $enfant,
             'form' => $form->createView(),
@@ -89,8 +106,11 @@ class EnfantController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$enfant->getIdEnfant(), $request->request->get('_token'))) {
             $entityManager->remove($enfant);
             $entityManager->flush();
+            
         }
-
+        /*
+        $jsonContent = $normalizer->normalize($enfant, 'json', ['groups' =>'post:read']);
+        return new Response(json_encode($jsonContent));*/
         return $this->redirectToRoute('app_enfant_index', [], Response::HTTP_SEE_OTHER);
     }
 }

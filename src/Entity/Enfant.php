@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * Enfant
  *
@@ -47,7 +48,7 @@ class Enfant
 
     /**
      * @var string|null
-     *
+     * @Groups("post:read") 
      * @ORM\Column(name="nom", type="string", length=255, nullable=true)
      * @Assert\NotBlank(message="must not be blanc")
      */
@@ -55,7 +56,7 @@ class Enfant
 
     /**
      * @var string|null
-     *
+     * @Groups("post:read") 
      * @ORM\Column(name="prenom", type="string", length=255, nullable=true)
      * @Assert\NotBlank(message="must not be blanc")
      */
@@ -63,7 +64,7 @@ class Enfant
 
     /**
      * @var \Parentxd
-     *
+     * 
      * @ORM\ManyToOne(targetEntity="Parentxd")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="parents_id_user", referencedColumnName="id_user")
